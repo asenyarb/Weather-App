@@ -45,14 +45,17 @@
             <div class="row">
                 <div class="col-4">
                     <h2>Add city</h2>
-                    <form action="" class="mt-4">
-                        <input type="text" id="city" class="form-control" name="city" placeholder="Enter the city">
-                        <input type="button" name="send" value="Add" class="btn btn-lg btn-secondary mt-4">
+                    <form action="" method="post" class="mt-4">
+                        {% csrf_token %}
+                        {{ form.city_name }}
+                        <input type="submit" id="add_city" name="send" value="Add" class="btn btn-lg btn-secondary mt-4">
                     </form>
+                    <label class="mt-5" style="color: #E53937">{{ message|default:"" }}</label>
                 </div>
-                <div class="col-5 offset-3">
+                <div class="col-6 offset-2">
                     <h2>City list</h2><br>
-                    <div class="row rounded" style="background-color: #E0BA8B;">
+                    {% for info in all_info%}
+                    <div class="row mt-2 rounded" style="background-color: #E0BA8B;">
                         <div class="col">
                             <div class="row">
                                 <h4 class="col text-left"><b>City:</b> {{ info.city_name }}</h4>
@@ -64,10 +67,17 @@
                                 <h6 class="col text-right">T<sup>o</sup><inf>max</inf>: {{ info.temp_max }}&#8451;</h6>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-2">
                             <img src="http://openweathermap.org/img/w/{{ info.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
                         </div>
+                        <div class="col-2">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <button type="submit" id="del_{{ info.city_name }}" name="delete_{{ info.city_name }}" value="Del" class="btn btn-lg btn-secondary mt-2" style="font-size: 16px">Delete</button>
+                            </form>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
