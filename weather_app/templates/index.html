@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Jekyll v3.8.5">
-    <title>Cover Template · Bootstrap</title>
+    <title>Weather by asenyarb</title>
 
     <!-- Bootstrap core CSS -->
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -33,17 +31,46 @@
     <link href="{% static 'css/cover.css' %}" rel="stylesheet">
   </head>
   <body class="text-center">
-    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <div class="cover-container d-flex mw-100 w-100 h-100 p-3 mx-auto flex-column">
   <header class="masthead mb-auto">
     <div class="inner">
-      <h3 class="masthead-brand">Cover</h3>
+      <h3 class="masthead-brand ml-5" style="color: #E59A54;">Asenya Weather</h3>
       <nav class="nav nav-masthead justify-content-center">
-        <a class="nav-link active" href="#">Home</a>
-        <a class="nav-link" href="#">Features</a>
-        <a class="nav-link" href="#">Contact</a>
+        <a class="nav-link active mr-5" href="#">Home</a>
       </nav>
     </div>
   </header>
+
+        <div class="container mt-3 position-absolute" style="min-width: 96%; top: 12%; left: 2%">
+            <div class="row">
+                <div class="col-4">
+                    <h2>Add city</h2>
+                    <form action="" class="mt-4">
+                        <input type="text" id="city" class="form-control" name="city" placeholder="Enter the city">
+                        <input type="button" name="send" value="Add" class="btn btn-lg btn-secondary mt-4">
+                    </form>
+                </div>
+                <div class="col-5 offset-3">
+                    <h2>City list</h2><br>
+                    <div class="row rounded" style="background-color: #E0BA8B;">
+                        <div class="col">
+                            <div class="row">
+                                <h4 class="col text-left"><b>City:</b> {{ info.city_name }}</h4>
+                                <h4 class="col text-right"><b>T<sup>o</sup></b>: {{ info.temp }}&#8451;</h4>
+                            </div>
+                            <div class="row">
+                                <h6 class="col text-left">Hum.: {{ info.humidity }}%</h6>
+                                <h6 class="col">T<sup>o</sup><inf>min</inf>: {{ info.temp_min }}&#8451;</h6>
+                                <h6 class="col text-right">T<sup>o</sup><inf>max</inf>: {{ info.temp_max }}&#8451;</h6>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <img src="http://openweathermap.org/img/w/{{ info.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 <!--
   <main role="main" class="inner cover">
     <h1 class="cover-heading">Cover your page.</h1>
@@ -52,13 +79,12 @@
       <a href="#" class="btn btn-lg btn-secondary">Learn more</a>
     </p>
   </main>-->
-<footer class="mastfoot mt-auto">
-    <div class="inner">
-      <p>Weather, by <a href="https://github.com/asenyarb">@asenya_rb</a>.</p>
+        <footer class="mastfoot mt-auto">
+            <div class="inner">
+                <p>Weather, by <a href="https://github.com/asenyarb" class="gitlink">@asenya_rb</a></p>
+            </div>
+        </footer>
     </div>
-</footer>
-
-</div>
 
 
 </body></html>
