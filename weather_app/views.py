@@ -12,27 +12,27 @@ def index(request):
 
     if request.method == 'POST':
         if request.POST.get("city_name"):
+            # POST message from add-city form
             form = CityForm(request.POST)
-            if len(City.objects.all()) < 5:
-                if form.is_valid():
-                    model = form.save(commit=False)
-                    if City.objects.filter(city_name=model.city_name).count():
+            if len(City.objects.all()) > 5:
+                text_message = r"Too many cities in list! Delete some of to continue."
+            else:
+                if not form.is_valid():
+                    text_message = r"The city wasn't saved because the form isn't valid!"
+                else:
+                    model = form.save(commit=False)     # Save form into temporary model
+                    if City.objects.filter(city_name=model.city_name).count():  # Check if city already exists in DB
                         text_message = r"The city is already in list!"
                     else:
-                        try:
-                            requests.get(url.format(model.city_name)).json()['main']['temp']
-                        except:
+                        if requests.get(url.format(model.city_name)).json()['cod'] == '404':    # Request error
                             text_message = r"The city wasn't found!"
                         else:
                             form.save()
-                else:
-                    text_message = r"The city wasn't saved because the form isn't valid!"
-            else:
-                text_message = r"Too many cities in list! Delete some of to continue."
         else:
+            # POST message from delete button
             string = 'delete_{}'
             for city in City.objects.all():
-                if string.format(city.city_name) in request.POST:
+                if string.format(city.city_name) in request.POST:   # Searching for button name
                     City.objects.filter(city_name=city.city_name).delete()
     form = CityForm()
     cities = City.objects.all()
@@ -51,6 +51,6 @@ def index(request):
         info.append(city_info)
     try:
         result = render(request, 'index.html', {'all_info': info, 'form': form, 'message': text_message})
-    except NameError:
+    except NameError:   # Text_message is accessed before assignment(is blank)
         result = render(request, 'index.html', {'all_info': info, 'form': form})
     return result
