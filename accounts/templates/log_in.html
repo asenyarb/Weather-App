@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        {% load static %}
+        <link rel="icon" href="{% static favicon.ico%}">
+        <title>Weather by asenyarb</title>
+
+        <!-- Bootstrap core CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+        <style>
+          .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+          }
+
+          @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+              font-size: 3.5rem;
+            }
+          }
+        </style>
+        <!-- Custom styles for this template -->
+         {% load static %}
+        <link href="{% static 'css/cover.css' %}" rel="stylesheet">
+    </head>
+    <body class="text-center">
+        <div class="cover-container d-flex mw-100 w-100 h-100 py-3 mx-auto flex-column">
+            <header class="masthead mb-2">
+                <div class="inner">
+                    <a class="masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>
+                    <nav class="nav nav-masthead justify-content-center">
+                        <a class="nav-link active mr-5" href="{% url 'index' %}">Home</a>
+                    </nav>
+                </div>
+            </header>
+            <div class="cover my-auto">
+                <h1> Sign in:</h1>
+                <form method="post" class="mw-25 w-25 mx-auto" style="color: #FF2643;">
+                    {% csrf_token %}
+                            <div class="text-left">{{ form }}</div>
+                    <button type="submit" class="btn btn-lg btn-secondary mt-5">Sign in</button>
+                </form>
+            </div>
+            <footer>
+                <h4 class="mb-md-4"> Don't have an account yet? <a href="{% url 'signup' %}" class="gitlink">Sign up</a></h4>
+                <div class="inner mastfoot mt-auto">
+                    <p>Weather, by <a href="https://github.com/asenyarb" class="gitlink">@asenya_rb</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

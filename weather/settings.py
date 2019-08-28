@@ -31,13 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'accounts',
+    'weather_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'weather_app.apps.WeatherAppConfig',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +56,9 @@ ROOT_URLCONF = 'weather.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'weather_app/../weather_app/../weather_app/templates')]
+        'DIRS': [os.path.join(BASE_DIR, 'weather_app/templates'),
+                 os.path.join(BASE_DIR, 'accounts/templates')
+                ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -116,10 +119,21 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, Java555555555Script, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'dimoniss00@gmail.com'
+EMAIL_HOST_PASSWORD = 'rlyNo_hacking784'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = '<dimoniss00@gmail.com>'
+EMAIL_USE_TLS = True

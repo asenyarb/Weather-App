@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
+    {% load static %}
+    <link rel="icon" href="{% static favicon.ico%}">
     <title>Weather by asenyarb</title>
 
     <!-- Bootstrap core CSS -->
@@ -34,9 +36,10 @@
     <div class="cover-container d-flex mw-100 w-100 h-100 p-3 mx-auto flex-column">
   <header class="masthead mb-auto">
     <div class="inner">
-      <h3 class="masthead-brand ml-5" style="color: #E59A54;">Asenya Weather</h3>
+        <a class="masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>
       <nav class="nav nav-masthead justify-content-center">
-        <a class="nav-link active mr-5" href="#">Home</a>
+        <a class="nav-link active mr-2" href="{% url 'index' %}">Home</a>
+        <a class="nav-link active mr-5" href="{% url 'logout' %}">Log out</a>
       </nav>
     </div>
   </header>
@@ -47,18 +50,21 @@
                     <h2>Add city</h2>
                     <form action="" method="post" class="mt-4">
                         {% csrf_token %}
-                        {{ form.city_name }}
+                         <div class="text-left" style="font-size: 22px;font-weight: bold;">
+                            {{ form }}
+                         </div>
                         <input type="submit" id="add_city" name="send" value="Add" class="btn btn-lg btn-secondary mt-4">
                     </form>
-                    <label class="mt-5" style="color: #E53937">{{ message|default:"" }}</label>
+                    <label class="mt-5" style="color: #E53937">{{ city_message|default:"" }}</label>
                 </div>
-                <div class="col-6 offset-2">
+                <div class="col-xl-7 offset-1">
                     <h2>City list</h2><br>
                     {% for info in all_info%}
                     <div class="row mt-2 rounded" style="background-color: #E0BA8B;">
                         <div class="col">
                             <div class="row">
-                                <h4 class="col text-left"><b>City:</b> {{ info.city_name }}</h4>
+                                <h4 class="col-xl-5 text-left"><b>City:</b> {{ info.city_name }}</h4>
+                                <h4 class="col text-left"><b>Country:</b> {{ info.country }}</h4>
                                 <h4 class="col text-right"><b>T<sup>o</sup></b>: {{ info.temp }}&#8451;</h4>
                             </div>
                             <div class="row">
@@ -68,7 +74,7 @@
                             </div>
                         </div>
                         <div class="col-2">
-                            <img src="http://openweathermap.org/img/w/{{ info.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
+                            <img class="mw-50 mh-75" src="http://openweathermap.org/img/w/{{ info.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
                         </div>
                         <div class="col-2">
                             <form action="" method="post">

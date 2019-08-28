@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        {% load static %}
+        <link rel="icon" href="{% static favicon.ico%}">
+        <title>Weather by asenyarb</title>
+
+        <!-- Bootstrap core CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+        <style>
+          .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+          }
+
+          @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+              font-size: 3.5rem;
+            }
+          }
+        </style>
+        <!-- Custom styles for this template -->
+         {% load static %}
+        <link href="{% static 'css/cover.css' %}" rel="stylesheet">
+    </head>
+    <body class="text-center">
+        <div class="cover-container d-flex mw-100 w-100 h-100 py-3 mx-auto flex-column">
+            <header class="masthead mb-2">
+                <div class="inner">
+                    <a class="masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>
+                    <nav class="nav nav-masthead justify-content-center">
+                        <a class="nav-link active mr-2" href="">Home</a>
+                        {% if user.is_anonymous %}
+                            <a class="nav-link active mr-2" href="{% url 'login' %}">Log in</a>
+                            <a class="nav-link active mr-5" href="{% url 'signup' %}">Sign up</a>
+                        {% else %}
+                            {%  if user.is_superuser or profile_activated %}
+                                <a class="nav-link active mr-2" href="{% url 'city-list' user.id %}">My List</a>
+                            {% else %}
+                                <a class="nav-link active mr-2" href="{% url 'index'%}">My List</a>
+                            {% endif %}
+                            <a class="nav-link active mr-5" href="{% url 'logout' %}">Log out</a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </header>
+            <div class="container mw-100 w-100">
+                <h4>{{ warning_message|default:"" }}</h4>
+            </div>
+            <div class="container mt-3" style="min-width: 96%; top: 12%; left: 2%">
+                <h1>Weather in city</h1>
+            <div class="row mt-5">
+                <div class="col-4">
+                    <h1>City</h1>
+                    <form action="" method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="text-left" style="font-size: 22px;font-weight: bold;">
+                            {{ form }}
+                        </div>
+                        <input type="submit" id="check_city" name="check-city" value="Search" class="btn btn-lg btn-secondary mt-4">
+                    </form>
+                    <label class="mt-5" style="color: #E53937">{{ city_message|default:"" }}</label>
+                </div>
+                {% if info.available %}
+                <div class="col-6 offset-2">
+                    <h1>Weather</h1><br>
+                    <div class="row mt-2 rounded" style="background-color: #E0BA8B;">
+                        <div class="col">
+                            <div class="row">
+                                <h2 class="col text-left"><b>City:</b> {{ info.city_name }}</h2>
+                                <h2 class="col"><b>Country:</b> {{ info.country }}</h2>
+                                <h2 class="col text-right"><b>T<sup>o</sup></b>: {{ info.temp }}&#8451;</h2>
+                            </div>
+                            <div class="row">
+                                <h4 class="col text-left">Hum.: {{ info.humidity }}%</h4>
+                                <h4 class="col text-right">T<sup>o</sup><inf>min</inf>: {{ info.temp_min }}&#8451;&nbsp;&nbsp;&nbsp;T<sup>o</sup><inf>max</inf>: {{ info.temp_max }}&#8451;</h4>
+                            </div>
+                            <div class="row">
+                                <h4 class="col text-left">Pressure: {{ info.pressure }} hPa</h4>
+                                <h4 class="col text-right">Wind speed: {{ info.wind.speed }} m/s</h4>
+                            </div>
+                            <div class="row">
+                                <h4 class="col text-left">Sunrise: {{ info.sunrise }}</h4>
+                                <h4 class="col text-right">Sunset: {{ info.sunset }}</h4>
+                            </div>
+                            <div class="row">
+                                <h4 class="col text-left">Description: {{ info.description }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <img class="mw-100 mh-70 w-100 h-70" src="http://openweathermap.org/img/w/{{ info.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+            <footer class="mastfoot mt-auto">
+                <div class="inner">
+                    <p>Weather, by <a href="https://github.com/asenyarb" class="gitlink">@asenya_rb</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

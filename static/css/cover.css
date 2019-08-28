@@ -108,3 +108,8 @@ body {
 .gitlink{
   color: #FF6532;
 }
+
+.gitlink:hover,
+.gitlink:focus{
+  color: #FF3D0C;
+}
