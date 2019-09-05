@@ -36,7 +36,7 @@
     <div class="cover-container d-flex mw-100 w-100 h-100 p-3 mx-auto flex-column">
   <header class="masthead mb-auto">
     <div class="inner">
-        <a class="masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>
+        <a class="btn btn-default masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>
       <nav class="nav nav-masthead justify-content-center">
         <a class="nav-link active mr-2" href="{% url 'index' %}">Home</a>
         <a class="nav-link active mr-5" href="{% url 'logout' %}">Log out</a>
@@ -47,7 +47,7 @@
         <div class="container mt-3 position-absolute" style="min-width: 96%; top: 12%; left: 2%">
             <div class="row">
                 <div class="col-4">
-                    <h2>Add city</h2>
+                    <h2 class="mt-5">Add city</h2>
                     <form action="" method="post" class="mt-4">
                         {% csrf_token %}
                          <div class="text-left" style="font-size: 22px;font-weight: bold;">
@@ -57,37 +57,41 @@
                     </form>
                     <label class="mt-5" style="color: #E53937">{{ city_message|default:"" }}</label>
                 </div>
-                <div class="col-xl-7 offset-1">
+            {% if info.available %}
+                <div class="col-7 offset-1">
                     <h2>City list</h2><br>
-                    {% for info in all_info%}
+                    {% for city in info.cities_list%}
                     <div class="row mt-2 rounded" style="background-color: #E0BA8B;">
                         <div class="col">
                             <div class="row">
-                                <h4 class="col-xl-5 text-left"><b>City:</b> {{ info.city_name }}</h4>
-                                <h4 class="col text-left"><b>Country:</b> {{ info.country }}</h4>
-                                <h4 class="col text-right"><b>T<sup>o</sup></b>: {{ info.temp }}&#8451;</h4>
+                                <h4 class="col-xl-5 text-left"><b>City:</b> {{ city.city_name }}</h4>
+                                <h4 class="col text-left"><b>Country:</b> {{ city.country_code }}</h4>
+                                <h4 class="col text-right"><b>T<sup>o</sup></b>: {{ city.weather.temp }}&#8451;</h4>
                             </div>
                             <div class="row">
-                                <h6 class="col text-left">Hum.: {{ info.humidity }}%</h6>
-                                <h6 class="col">T<sup>o</sup><inf>min</inf>: {{ info.temp_min }}&#8451;</h6>
-                                <h6 class="col text-right">T<sup>o</sup><inf>max</inf>: {{ info.temp_max }}&#8451;</h6>
+                                <h6 class="col text-left">Hum.: {{ city.weather.humidity }}%</h6>
+                                <h6 class="col">T<sup>o</sup><inf>min</inf>: {{ city.weather.temp_min }}&#8451;</h6>
+                                <h6 class="col text-right">T<sup>o</sup><inf>max</inf>: {{ city.weather.temp_max }}&#8451;</h6>
                             </div>
                         </div>
-                        <div class="col-2">
-                            <img class="mw-50 mh-75" src="http://openweathermap.org/img/w/{{ info.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
+                         <div class="col-2 d-flex">
+                            <div class="img_square align-self-center">
+                            <img src="http://openweathermap.org/img/w/{{ city.weather.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
+                            </div>
                         </div>
                         <div class="col-2">
                             <form action="" method="post">
                                 {% csrf_token %}
-                                <button type="submit" id="del_{{ info.city_name }}" name="delete_{{ info.city_name }}" value="Del" class="btn btn-lg btn-secondary mt-2" style="font-size: 16px">Delete</button>
+                                <button type="submit" id="del_{{ city.city_name }}" name="delete_{{ city.city_name }}" value="Del" class="btn btn-lg btn-secondary mt-2" style="font-size: 16px">Delete</button>
                             </form>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
+              {% endif %}
             </div>
         </div>
-        <footer class="mastfoot mt-auto">
+        <footer class="mastfoot mt-5">
             <div class="inner">
                 <p>Weather, by <a href="https://github.com/asenyarb" class="gitlink">@asenya_rb</a></p>
             </div>

@@ -113,3 +113,22 @@ body {
 .gitlink:focus{
   color: #FF3D0C;
 }
+
+.img_square {
+  position: relative;
+  width: 100%;
+}
+
+.img_square:after {
+  content: "";
+  padding-bottom: 100%;
+}
+
+.img_in_square {
+  width: 100%;
+  height: 100%;
+}
+
+.desc {
+  font-weight: 600;
+}

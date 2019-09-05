@@ -34,10 +34,13 @@
     </head>
     <body class="text-center">
         <div class="cover-container d-flex mw-100 w-100 h-100 py-3 mx-auto flex-column">
-            <header class="masthead mb-2">
+        <div class="container mw-100 w-100 mt-2">
+                            <h4>{{ warning_message|default:"" }}</h4>
+                            <h1 style="font-weight: bold">Weather in city</h1>
+        </div>
+            <header class="position-absolute mw-100 w-100 masthead mb-2">
                 <div class="inner">
-                    <a class="masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>
-                    <nav class="nav nav-masthead justify-content-center">
+                        <a class="btn btn-default masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>                    <nav class="nav nav-masthead justify-content-center">
                         <a class="nav-link active mr-2" href="">Home</a>
                         {% if user.is_anonymous %}
                             <a class="nav-link active mr-2" href="{% url 'login' %}">Log in</a>
@@ -53,14 +56,10 @@
                     </nav>
                 </div>
             </header>
-            <div class="container mw-100 w-100">
-                <h4>{{ warning_message|default:"" }}</h4>
-            </div>
-            <div class="container mt-3" style="min-width: 96%; top: 12%; left: 2%">
-                <h1>Weather in city</h1>
+            <div class="container mt-5" style="min-width: 96%; top: 12%; left: 2%">
             <div class="row mt-5">
                 <div class="col-4">
-                    <h1>City</h1>
+                    <h2>City</h2>
                     <form action="" method="post" class="mt-4">
                         {% csrf_token %}
                         <div class="text-left" style="font-size: 22px;font-weight: bold;">
@@ -68,36 +67,37 @@
                         </div>
                         <input type="submit" id="check_city" name="check-city" value="Search" class="btn btn-lg btn-secondary mt-4">
                     </form>
-                    <label class="mt-5" style="color: #E53937">{{ city_message|default:"" }}</label>
+                    <!--<label class="mt-5" style="color: #E53937"></label>-->
                 </div>
                 {% if info.available %}
                 <div class="col-6 offset-2">
-                    <h1>Weather</h1><br>
+                    <h2>Weather</h2><br>
                     <div class="row mt-2 rounded" style="background-color: #E0BA8B;">
                         <div class="col">
                             <div class="row">
-                                <h2 class="col text-left"><b>City:</b> {{ info.city_name }}</h2>
-                                <h2 class="col"><b>Country:</b> {{ info.country }}</h2>
-                                <h2 class="col text-right"><b>T<sup>o</sup></b>: {{ info.temp }}&#8451;</h2>
+                                <h4 class="col text-left"><b>City:</b> {{ info.city.city_name }}</h4>
+                                <h4 class="col"><b>Country:</b> {{ info.city.country_code }}</h4>
+                                <h4 class="col text-right"><b>T<sup>o</sup>:</b> {{ info.city.weather.temp }}&#8451;</h4>
                             </div>
                             <div class="row">
-                                <h4 class="col text-left">Hum.: {{ info.humidity }}%</h4>
-                                <h4 class="col text-right">T<sup>o</sup><inf>min</inf>: {{ info.temp_min }}&#8451;&nbsp;&nbsp;&nbsp;T<sup>o</sup><inf>max</inf>: {{ info.temp_max }}&#8451;</h4>
+                                <h5 class="col text-left"><span class="desc">Hum:</span> {{ info.city.weather.humidity }}%</h5>
                             </div>
                             <div class="row">
-                                <h4 class="col text-left">Pressure: {{ info.pressure }} hPa</h4>
-                                <h4 class="col text-right">Wind speed: {{ info.wind.speed }} m/s</h4>
+                                <h5 class="col text-left"><span class="desc">Pressure:</span> {{ info.city.weather.pressure }} hPa</h5>
+                                <h5 class="col text-right"><span class="desc">Wind speed:</span> {{ info.city.weather.wind_speed }} m/s</h5>
                             </div>
                             <div class="row">
-                                <h4 class="col text-left">Sunrise: {{ info.sunrise }}</h4>
-                                <h4 class="col text-right">Sunset: {{ info.sunset }}</h4>
+                                <h5 class="col text-left"><span class="desc">Sunrise:</span> {{ info.city.weather.sunrise }}</h5>
+                                <h5 class="col text-right"><span class="desc">Sunset:</span> {{ info.city.weather.sunset }}</h5>
                             </div>
                             <div class="row">
-                                <h4 class="col text-left">Description: {{ info.description }}</h4>
+                                <h5 class="col text-left"><span class="desc">Description:</span> {{ info.city.weather.description }}</h5>
                             </div>
                         </div>
-                        <div class="col-2">
-                            <img class="mw-100 mh-70 w-100 h-70" src="http://openweathermap.org/img/w/{{ info.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
+                        <div class="col-2 d-flex">
+                            <div class="img_square align-self-center">
+                            <img class="img_in_square" src="http://openweathermap.org/img/w/{{ info.city.weather.icon_id }}.png" alt="weather_icon" style="background-color: #E0BA8B;">
+                            </div>
                         </div>
                     </div>
                 </div>

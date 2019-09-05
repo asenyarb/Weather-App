@@ -1,139 +1,156 @@
 from django.shortcuts import render
+from django.template import RequestContext
+from django.views import View
 import requests
-from .models import City
+from .models import City, Weather
 from accounts.models import Profile
 from django.contrib.auth.models import User
 from .forms import CityForm
-from .utils import utc_to_local_time, create_warning_message
-from django.shortcuts import redirect
+from .utils import response_to_map, create_warning_message
+
 
 # Create your views here.
 
 
-def weather_in_city(request):
-    if request.user.is_anonymous:
-        activated = True
-    else:
-        activated = Profile.objects.get(user=request.user).activated
-    warning_message = create_warning_message(request.user)
-    if request.method == 'POST':
-        city_info = {}
-        form = CityForm(request.POST)
+class CityViewer(View):
+
+    def get(self, request, id=0):
+        warning_message = create_warning_message(request.user)
+        form = CityForm()
         city_message = ""
-        if not form.is_valid():
-            city_message = r"The city wasn't saved because the form isn't valid!"
-        else:
-            model = form.save(commit=False)
-            if model.country_code:
-                country_code = ',' + model.country_code + '&units=metric&appid='
-            else:
-                country_code = '&units=metric&appid='
-            app_id = 'd5690ce2c8cf4f332eb7788636e9bc69'
-            url = 'https://api.openweathermap.org/data/2.5/weather?q=' + model.city_name + country_code + app_id
-            if requests.get(url).json()['cod'] == '404':  # Request error
-                city_message = r"The city wasn't found!"
-            else:
-                response = requests.get(url).json()
-                city_info = {
-                    'available': True,
-                    'city_name': response['name'],
-                    'country': response['sys']['country'],
-                    'temp': response['main']['temp'],
-                    'temp_min': response['main']['temp_min'],
-                    'temp_max': response['main']['temp_max'],
-                    'humidity': response['main']['humidity'],
-                    'pressure': response['main']['pressure'],
-                    'description': response['weather'][0]['description'],
-                    'icon_id': response['weather'][0]['icon'],
-                    'wind': {
-                        'speed': response['wind']['speed'],
-                    },
-                    'sunrise': utc_to_local_time(lng=response['coord']['lon'], lat=response['coord']['lat'], unix_time=response['sys']['sunrise'])[12:17],
-                    'sunset': utc_to_local_time(lng=response['coord']['lon'], lat=response['coord']['lat'], unix_time=response['sys']['sunset'])[12:17],
-                }
-        form = CityForm()
-        return render(
-                request,
-                'weather_in_city.html',
-                {
-                    'info': city_info,
-                    'form': form,
-                    'user': request.user,
-                    'profile_activated': activated,
-                    'city_message': city_message,
-                    'warning_message': warning_message,
-                }
-            )
-    if request.method == "GET":
-        city_info = {'available': False}
-        form = CityForm()
-        return render(
+        if id:      # city-list.html
+            user = User.objects.get(id=id)
+            current_profile = Profile.objects.get_or_create(user=user)[0]  # User is authorised
+            cities_list = current_profile.cities.all()
+            available = True if cities_list.count() else False    # False if empty
+            info = {
+                'available': available,
+                'cities_list': cities_list,
+            }
+            template_name = 'city_list.html'
+
+        else:       # weather_info.html
+            city = City()
+            info = {
+                'available': False,
+                'city': city,
+            }
+            template_name = 'weather_in_city.html'
+        result = render(
             request,
-            'weather_in_city.html',
+            template_name,
             {
-                'info': city_info,
+                'info': info,
                 'form': form,
                 'user': request.user,
-                'profile_activated': activated,
-                'warning_message': warning_message
+                'city_message': city_message,
+                'warning_message': warning_message,
             }
         )
+        return result
 
+    def post(self, request, id=0):
+        app_id = '&units=metric&appid=d5690ce2c8cf4f332eb7788636e9bc69'
+        template_name = "city_list.html" if id else "weather_in_city.html"
+        city_message = ""
+        warning_message = create_warning_message(request.user)
 
-def city_list(request, id):
-    app_id = 'd5690ce2c8cf4f332eb7788636e9bc69'
-    url = 'https://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid=' + app_id
-
-    user = User.objects.get(id=id)
-    current_profile = Profile.objects.get_or_create(user=user)[0]   # User is authorised
-
-    city_message = ""
-    if request.method == 'POST':
-        if request.POST.get("city_name"):
-            # POST message from add-city form
-            form = CityForm(request.POST)
-            model = form.save(commit=False)  # Save form into temporary model
-            if not form.is_valid():
-                city_message = r"The city wasn't saved because the form isn't valid!"
-            elif current_profile.cities.all().count() > 5:
-                city_message = r"Too many cities in list! Delete some of to continue."
-            elif current_profile.cities.filter(city_name=model.city_name).count():  # Check if city already exists in profile cities list
-                city_message = r"The city is already in list!"
-            elif requests.get(url.format(model.city_name)).json()['cod'] == '404':  # Request error
-                city_message = r"The city wasn't found!"
-            else:
-                model.profile = current_profile
-                model.save()
-        else:
-            # POST message from delete button
-            string = 'delete_{}'
+        if id and not request.POST.get("send"):     # Sent by delete button for city
+            current_profile = Profile.objects.get(user=request.user)
             for city in current_profile.cities.all():
-                if string.format(city.city_name) in request.POST:  # Searching for button name
-                    City.objects.get(city_name=city.city_name, profile=current_profile).delete()
-    form = CityForm()
-    cities = current_profile.cities.all()
-    info = []
-    for city in cities:
+                if ('delete_' + city.city_name) in request.POST:  # Searching for button name
+                    City.objects.get(city_name=city.city_name, country_code=city.country_code, profile=current_profile).delete()
+            city_list = current_profile.cities.all()
+            available = True if city_list.count() else False
+            info = {
+                'available': available,
+                'cities_list': city_list,
+            }
+            form = CityForm()
+            return render(request, template_name, {
+                'info': info,
+                'form': form,
+                'user': request.user,
+                'city_message': city_message,
+                'warning_message': warning_message,
+            })
+        form = CityForm(request.POST)
+        if not form.is_valid():
+            city_message = r"The city wasn't accepted because the form isn't valid!"
+            info = {
+                'available': False
+            }
+            form = CityForm()
+            return render(request, template_name, {
+                'info': info,
+                'form': form,
+                'user': request.user,
+                'city_message': city_message,
+                'warning_message': warning_message,
+            })
+        city = form.save(commit=False)
+        form = CityForm()
+        if city.country_code:
+            app_id = ',' + city.country_code + app_id
+        url = 'https://api.openweathermap.org/data/2.5/weather?q={}' + app_id
         response = requests.get(url.format(city.city_name)).json()
-        city_info = {
-            'city_name': response['name'],
-            'country': response['sys']['country'],
-            'temp': response['main']['temp'],
-            'temp_min': response['main']['temp_min'],
-            'temp_max': response['main']['temp_max'],
-            'humidity': response['main']['humidity'],
-            'weather': response['weather'][0]['main'],
-            'icon_id': response['weather'][0]['icon'],
-        }
-        info.append(city_info)
-    result = render(
-        request,
-        'city_list.html',
-        {
-            'all_info': info,
-            'form': form,
-            'user': request.user,
-            'city_message': city_message,
-        }
-    )
-    return result
+        if response['cod'] == '404':  # Request error
+            city_message = r"The city wasn't found!"
+            if id:
+                current_profile = Profile.objects.get(user=request.user)
+                cities = current_profile.cities.all()
+                available = True if cities.count() else False
+                info = {
+                    'available': available,
+                    'cities_list': cities,
+                }
+            else:
+                info = {
+                    'available': False
+                }
+            form = CityForm()
+            return render(request, template_name, {
+                'info': info,
+                'form': form,
+                'user': request.user,
+                'city_message': city_message,
+                'warning_message': warning_message,
+            })
+        weather = Weather()
+        weather.save(weather_dict=response_to_map(response))
+        city.country_code = response['sys']['country']
+        if id:
+            current_profile = Profile.objects.get(user=request.user)
+            if current_profile.cities.all().count() > 5:
+                city_message = r"Too many cities in list! Delete some of to continue."
+            # Check if city already exists in profile cities list
+            elif current_profile.cities.filter(city_name=city.city_name).count():
+                city_message = r"The city is already in list!"
+            else:
+                city_message=""
+                city.profile = current_profile
+                city.weather = weather
+                city.save()
+
+            form = CityForm()
+            cities = current_profile.cities.all()
+            available = True if cities.count() else False
+            info = {
+                'available': available,
+                'cities_list': cities,
+            }
+        else:
+            template_name = "weather_in_city.html"
+            city.weather = weather
+            info = {
+                'available': True,
+                'city': city,
+            }
+        return render(request, template_name, {
+                                            'info': info,
+                                            'form': form,
+                                            'user': request.user,
+                                            'city_message': city_message,
+                                            'warning_message': warning_message,
+                                        }
+               )
