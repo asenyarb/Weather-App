@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        {% load static %}
+        <link rel="icon" href="{% static favicon.ico%}">
+        <title>Weather by asenyarb</title>
+
+        <!-- Bootstrap core CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+        <style>
+          .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+          }
+          @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+              font-size: 3.5rem;
+            }
+          }
+        </style>
+        <!-- Custom styles for this template -->
+         {% load static %}
+        <link href="{% static 'css/cover.css' %}" rel="stylesheet">
+    </head>
+    <body class="text-center h-100">
+        <div class="cover-container d-flex mw-100 w-100 h-100 py-3 mx-auto flex-column">
+            <header class="mw-100 w-100 masthead mb-2">
+                <div class="inner">
+                        <a class="btn btn-default masthead-brand ml-5" href="{% url 'index' %}" style="color: #E59A54; font-size: 1.7em;" aria-label="Home">Asenya Weather</a>
+                    <nav class="nav nav-masthead justify-content-center">
+                        <a class="nav-link active mr-2" href="{% url 'index' %}">Home</a>
+                        <a class="nav-link active mr-2" href="{% url 'city-list' user.id %}">My List</a>
+                        <a class="nav-link active mr-5" href="{% url 'logout' %}">Log out</a>
+                    </nav>
+                </div>
+            </header>
+
+            <div class="container text-left mt-5">
+                <div class="row">
+                    <h2 class="font-weight-bold">Add city</h2>
+                    <h4 style="color: #FF9D26;">To add city to your profile use <span class="mastfoot">" *site name*/api/add-city/?city_name=*city name*&code=*country code* "</span>,
+                        where <span class="mastfoot">city_name</span> - city name and <span class="mastfoot">code</span> - country code (ISO 3166-2 standart)<br>
+                        Code value is optional.
+                    </h4>
+                </div>
+                <div class="row">
+                    <h2 class="font-weight-bold">Delete city</h2>
+                    <h4 style="color: #FF9D26;">To delete city from your profile use <span class="mastfoot">" *site name*/api/delete-city/?city_name=*city name*&code=*country code* "</span>,
+                        where <span class="mastfoot">city_name</span> - city name and <span class="mastfoot">code</span> - country code (ISO 3166-2 standart)<br>
+                        Code value is optional. If no code value was specified, all cities with specified city name will be deleted
+                    </h4>
+                </div>
+            </div>
+
+            <footer class="mastfoot mt-auto">
+                <div class="inner">
+                    <p>Weather, by <a href="https://github.com/asenyarb" class="gitlink">@asenya_rb</a></p>
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>

@@ -1,5 +1,9 @@
 from django.db import models
 from accounts.models import Profile
+from weather_app.utils import unix_time_to_local
+from datetime import datetime, timedelta
+import requests
+from copy import deepcopy
 
 
 class Weather(models.Model):
@@ -14,20 +18,23 @@ class Weather(models.Model):
     icon_id = models.CharField(max_length=20)
     sunrise = models.CharField(max_length=6)
     sunset = models.CharField(max_length=6)
+    update_time = models.DateTimeField(null=True)
 
-    def save(self, weather_dict=None, *args, **kwargs):
-        self.temp = weather_dict['temp']
-        self.temp_min = weather_dict['temp_min']
-        self.temp_max = weather_dict['temp_max']
-        self.humidity = weather_dict['humidity']
-        self.pressure = weather_dict['pressure']
-        self.description = weather_dict['description']
-        self.wind_speed = weather_dict['wind_speed']
-        self.weather = weather_dict['weather']
-        self.icon_id = weather_dict['icon_id']
-        self.sunrise = weather_dict['sunrise']
-        self.sunset = weather_dict['sunset']
-        super(Weather, self).save(*args, *kwargs)
+    def save(self, response=None, *args, **kwargs):
+        if response:
+            self.temp = response['main']['temp']
+            self.temp_min = response['main']['temp_min']
+            self.temp_max = response['main']['temp_max']
+            self.humidity = response['main']['humidity']
+            self.pressure = response['main']['pressure']
+            self.description = response['weather'][0]['description']
+            self.wind_speed = response['wind']['speed']
+            self.weather = response['weather'][0]['main']
+            self.icon_id = response['weather'][0]['icon']
+            self.sunrise = unix_time_to_local(response['coord'], response['sys']['sunrise'])
+            self.sunset = unix_time_to_local(response['coord'], response['sys']['sunset'])
+            self.update_time = datetime.utcnow()
+            super(Weather, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Weather"
@@ -37,6 +44,7 @@ class Weather(models.Model):
 
 
 class City(models.Model):
+    id = models.AutoField(primary_key=True)
     city_name = models.CharField(max_length=50)
     country_code = models.CharField(max_length=2, blank=True)
     profile = models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='cities')
@@ -48,3 +56,20 @@ class City(models.Model):
 
     def __str__(self):
         return self.city_name
+
+
+def update_weather_if_needed(city: City):
+    if (city.weather.update_time).replace(tzinfo=None)-datetime.utcnow() > timedelta(minutes=20):
+        app_id = '&units=metric&appid=d5690ce2c8cf4f332eb7788636e9bc69'
+        url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city.city_name + ',' + city.country_code + app_id
+        response = requests.get(url.format(city.city_name)).json()
+        weather = Weather()
+        weather.save(response=response)
+        new_city = City()
+        id = new_city.id
+        new_city = deepcopy(city)
+        new_city.id = id
+        new_city.weather = weather
+        city.delete()
+        new_city.save()
+

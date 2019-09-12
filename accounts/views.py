@@ -1,14 +1,20 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .forms import UserRegisterForm
-from .models import Profile
+# Django
+from django.shortcuts import render
 from django.contrib.auth.models import User
-from weather_app.forms import CityForm
-
 # Email
 from django.core.mail import send_mail
 from django.conf import settings
-from .utils import generate_token
+from accounts.utils import generate_token
+
+from accounts.forms import UserRegisterForm
+from accounts.models import Profile
+from weather_app.forms import CityForm
+
+# Rest
+from rest_framework import viewsets
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from accounts.serializers import ProfileSerializer
+from accounts.permissions import ProfilePermission
 
 
 def index(request, warning_message=''):
@@ -73,8 +79,7 @@ def register(request):
             subject = 'Weather by asenya_rb'
             URL = '127.0.0.1:8000/account/confirm/'
             link = URL + str(user.id) + '/' + profile.token
-            message = 'Hello, ' + user.first_name + '!  Thanks for registration in weather_app ' \
-                      'under the username ' + user.username + '.\nPlease, follow' \
+            message = 'Hello, ' + user.username + '!  Thanks for registration in weather_app.\nPlease, follow' \
                       ' this link to proceed: \n' + link
             from_email = settings.EMAIL_HOST_USER
             to_list = [user.email, 'dimoniss00@gmail.com']
@@ -102,4 +107,11 @@ def register(request):
                     'user': request.user
                 }
             )
+
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [ProfilePermission]
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
 

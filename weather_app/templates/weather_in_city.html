@@ -32,7 +32,7 @@
          {% load static %}
         <link href="{% static 'css/cover.css' %}" rel="stylesheet">
     </head>
-    <body class="text-center">
+    <body class="text-center h-100">
         <div class="cover-container d-flex mw-100 w-100 h-100 py-3 mx-auto flex-column">
         <div class="container mw-100 w-100 mt-2">
                             <h4>{{ warning_message|default:"" }}</h4>
@@ -46,9 +46,10 @@
                             <a class="nav-link active mr-2" href="{% url 'login' %}">Log in</a>
                             <a class="nav-link active mr-5" href="{% url 'signup' %}">Sign up</a>
                         {% else %}
-                            {%  if user.is_superuser or profile_activated %}
+                            {%  if user.is_superuser or user.profile.activated %}
                                 <a class="nav-link active mr-2" href="{% url 'city-list' user.id %}">My List</a>
-                            {% else %}
+                                <a class="nav-link active mr-2" href="{% url 'api-help' %}">Api Help</a>
+                            {% else %} <!--Should activate profile to get to MyList-->
                                 <a class="nav-link active mr-2" href="{% url 'index'%}">My List</a>
                             {% endif %}
                             <a class="nav-link active mr-5" href="{% url 'logout' %}">Log out</a>

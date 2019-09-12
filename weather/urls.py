@@ -16,8 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.views.generic import RedirectView
 from django.urls import path, include
+from rest_framework import routers
+from accounts.views import ProfileViewSet
+from weather_app.views import CityViewSet, AddCityApi, DeleteCityApi, ApiHelp
+
+router = routers.DefaultRouter()
+router.register(r'profiles', ProfileViewSet)
+router.register(r'cities', CityViewSet)
 
 urlpatterns = [
+    path('api/', include(router.urls)),
+    path('api/add-city/', AddCityApi.as_view(), name='profile-delete'),
+    path('api/delete-city/', DeleteCityApi.as_view(), name='profile-delete'),
+    path('api/help', ApiHelp.as_view(), name='api-help'),
     path('admin/', admin.site.urls),
     path('', include('weather_app.urls')),
     path('', include('accounts.urls')),

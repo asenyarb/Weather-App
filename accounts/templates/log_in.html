@@ -32,7 +32,7 @@
          {% load static %}
         <link href="{% static 'css/cover.css' %}" rel="stylesheet">
     </head>
-    <body class="text-center">
+    <body class="text-center h-100">
         <div class="cover-container d-flex mw-100 w-100 h-100 py-3 mx-auto flex-column">
             <header class="masthead mb-2">
                 <div class="inner">
@@ -49,7 +49,7 @@
                     <button type="submit" class="btn btn-lg btn-secondary mt-5">Sign in</button>
                 </form>
             </div>
-            <footer>
+            <footer class="mt-5">
                 <h4 class="mb-md-4"> Don't have an account yet? <a href="{% url 'signup' %}" class="gitlink">Sign up</a></h4>
                 <div class="inner mastfoot mt-auto">
                     <p>Weather, by <a href="https://github.com/asenyarb" class="gitlink">@asenya_rb</a></p>
