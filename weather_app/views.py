@@ -34,7 +34,7 @@ class CityViewer(View):
             for city in current_profile.cities.all():
                 update_weather_if_needed(city)
             cities_list = current_profile.cities.all()  # Get updated list of cities
-            available = True if cities_list.count() else False    # False if empty
+            available = True if cities_list else False    # False if empty
             info = {
                 'available': available,
                 'cities_list': cities_list,
@@ -73,7 +73,7 @@ class CityViewer(View):
                 if ('delete_' + city.city_name + city.country_code) in request.POST:  # Searching for button name
                     City.objects.get(city_name=city.city_name, country_code=city.country_code, profile=current_profile).delete()
             city_list = current_profile.cities.all()
-            available = True if city_list.count() else False
+            available = True if city_list else False
             info = {
                 'available': available,
                 'cities_list': city_list,
@@ -111,7 +111,7 @@ class CityViewer(View):
             if id:
                 current_profile = Profile.objects.get(user=request.user)
                 cities = current_profile.cities.all()
-                available = True if cities.count() else False
+                available = True if cities else False
                 info = {
                     'available': available,
                     'cities_list': cities,
@@ -136,7 +136,7 @@ class CityViewer(View):
             if current_profile.cities.all().count() > 5:
                 city_message = r"Too many cities in list! Delete some of to continue."
             # Check if city already exists in profile cities list
-            elif current_profile.cities.filter(city_name=city.city_name, country_code=city.country_code).count():
+            elif current_profile.cities.filter(city_name=city.city_name, country_code=city.country_code):
                 city_message = r"The city is already in list!"
             else:
                 city_message = ""
@@ -146,7 +146,7 @@ class CityViewer(View):
 
             form = CityForm()
             cities = current_profile.cities.all()
-            available = True if cities.count() else False
+            available = True if cities else False
             info = {
                 'available': available,
                 'cities_list': cities,
@@ -188,23 +188,28 @@ class CityViewSet(viewsets.ModelViewSet):
 class AddCityApi(APIView):
 
     def get(self, request):
-        try:
-            profile = Profile.objects.get(user=request.user)
-        except Profile.DoesNotExist:
-            return Response({'message': "Profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        app_id = '&units=metric&appid=d5690ce2c8cf4f332eb7788636e9bc69'
         city_name = request.GET.get('city_name', None)
         country_code = request.GET.get('code', None)
         if not city_name:
             return Response({'message': "You should enter city_name!"}, status.HTTP_400_BAD_REQUEST)
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({'message': "Profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+        app_id = '&units=metric&appid=d5690ce2c8cf4f332eb7788636e9bc69'
         if country_code:
             app_id = ',' + country_code + app_id
         url = 'https://api.openweathermap.org/data/2.5/weather?q={}' + app_id
         response = requests.get(url.format(city_name)).json()
         if response['cod'] == '404':  # Request error
             return Response({'message': "The city wasn't found!"}, status.HTTP_404_NOT_FOUND)
-        if profile.cities.filter(city_name=city_name).count():
-            return Response({'message': "The city wasn't found!"}, status.HTTP_400_BAD_REQUEST)
+        if country_code:
+            if profile.cities.filter(city_name=city_name, country_code=country_code):
+                return Response({'message': "City already in list!"}, status.HTTP_400_BAD_REQUEST)
+        else:
+            if profile.cities.filter(city_name=city_name):
+                return Response({'message': "City already in list!"}, status.HTTP_400_BAD_REQUEST)
         weather = Weather()
         weather.save(response=response)
         country_code = response['sys']['country']
