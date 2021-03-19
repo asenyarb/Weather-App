@@ -1,4 +1,4 @@
-Django==2.2.5
+Django==2.2.18
 djangorestframework==3.10.3
 requests==2.22.0
 timezonefinder==4.1.0
