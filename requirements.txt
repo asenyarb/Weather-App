@@ -1,5 +1,5 @@
 Django==2.2.5
-djangorestframework==3.10.3
+djangorestframework==3.11.2
 requests==2.22.0
 timezonefinder==4.1.0
 pytz==2019.2
